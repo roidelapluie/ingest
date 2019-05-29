@@ -17,7 +17,7 @@ var (
 	dir        = flag.String("output-dir", "output", "directory where to put the TSDB")
 	waldir     = flag.String("wal-output-dir", "", "directory where to put the WAL, can be removed")
 	input      = flag.String("input-file", "input", "json input file")
-	blockRange = flag.Int64("block-range", 3600*1000*24*365, "block range")
+	blockRange = flag.Int64("block-range", 10*3600*1000*24*365, "block range")
 )
 
 type Metric struct {
