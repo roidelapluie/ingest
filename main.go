@@ -15,8 +15,9 @@ import (
 
 var (
 	dir        = flag.String("output-dir", "output", "directory where to put the TSDB")
+	waldir     = flag.String("wal-output-dir", "", "directory where to put the WAL, can be removed")
 	input      = flag.String("input-file", "input", "json input file")
-	blockRange = flag.Int64("block-range", 1024*1024, "block range")
+	blockRange = flag.Int64("block-range", 3600*1000*24*365, "block range")
 )
 
 type Metric struct {
@@ -34,7 +35,10 @@ func main() {
 		WALSegmentSize: 0,
 		NoLockfile:     true,
 	}
-	db, err := tsdb.Open(*dir, logger, prometheus.DefaultRegisterer, opts)
+	if *waldir == "" {
+		*waldir = fmt.Sprintf("%s.wal", *dir)
+	}
+	db, err := tsdb.Open(*waldir, logger, prometheus.DefaultRegisterer, opts)
 	if err != nil {
 		panic(err)
 	}
@@ -67,6 +71,10 @@ func main() {
 		}
 	}
 	_, err = dec.Token()
+	if err != nil {
+		logger.Log(err)
+	}
+	err = db.Snapshot(*dir, true)
 	if err != nil {
 		logger.Log(err)
 	}
