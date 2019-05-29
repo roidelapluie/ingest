@@ -17,7 +17,7 @@ var (
 	dir        = flag.String("output-dir", "output", "directory where to put the TSDB")
 	waldir     = flag.String("wal-output-dir", "", "directory where to put the WAL, can be removed")
 	input      = flag.String("input-file", "input", "json input file")
-	blockRange = flag.Int64("block-range", 10*3600*1000*24*365, "block range")
+	blockRange = flag.Int64("block-range", 100*3600*1000*24*365, "block range")
 )
 
 type Metric struct {
@@ -60,7 +60,7 @@ func main() {
 		var m Metric
 		err = dec.Decode(&m)
 		if err != nil {
-			logger.Log(err)
+			logger.Log("error decoding", err)
 			continue
 		}
 		fmt.Printf("%v %v %v\n", m.Labels, m.Timestamp, m.Value)
@@ -71,11 +71,11 @@ func main() {
 	}
 	_, err = dec.Token()
 	if err != nil {
-		logger.Log(err)
+		logger.Log("token", err)
 	}
 	app.Commit()
 	err = db.Snapshot(*dir, true)
 	if err != nil {
-		logger.Log(err)
+		logger.Log("snapshot", err)
 	}
 }
