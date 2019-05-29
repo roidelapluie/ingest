@@ -45,7 +45,6 @@ func main() {
 	defer db.Close()
 	db.EnableCompactions()
 	app := db.Appender()
-	defer app.Commit()
 
 	f, err := os.Open(*input)
 	if err != nil {
@@ -74,6 +73,7 @@ func main() {
 	if err != nil {
 		logger.Log(err)
 	}
+	app.Commit()
 	err = db.Snapshot(*dir, true)
 	if err != nil {
 		logger.Log(err)
